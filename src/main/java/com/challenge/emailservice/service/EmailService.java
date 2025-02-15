@@ -16,10 +16,14 @@ public class EmailService {
 
     public boolean sendEmail(String to, String subject, String body) {
         for (EmailServiceProvider provider : providers) {
-            if (provider.sendEmail(to, subject, body)) {
-                return true; // Si un proveedor funciona, terminamos el proceso
+            try {
+                if (provider.sendEmail(to, subject, body)) {
+                    return true; //si un proveedor funciona termina el proceso
+                }
+            } catch (Exception e) {
+                System.err.println("Error con proveedor: " + provider.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
-        return false; // Si todos fallan, se retorna false
+        return false; //si todos fallan, devuelve false
     }
 }

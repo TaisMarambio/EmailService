@@ -3,12 +3,11 @@ package com.challenge.emailservice;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 class EmailServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
-		System.out.println("Test");
+		// Solo verifica que el contexto arranca correctamente
 	}
-
 }

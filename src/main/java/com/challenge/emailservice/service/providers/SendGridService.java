@@ -19,7 +19,10 @@ public class SendGridService implements EmailServiceProvider {
 
     @Override
     public boolean sendEmail(String to, String subject, String body) {
-        Email from = new Email("noreply@tu-dominio.com");
+        System.out.println("SendGrid API Key: " + sendGridApiKey);
+        System.out.println("SendGrid Sender Email: " + senderEmail);
+
+        Email from = new Email(senderEmail);
         Email toEmail = new Email(to);
         Content content = new Content("text/plain", body);
         Mail mail = new Mail(from, subject, toEmail, content);
@@ -30,9 +33,19 @@ public class SendGridService implements EmailServiceProvider {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
+
             Response response = sg.api(request);
+
+            // Log para depurar la respuesta de SendGrid
+            System.out.println("SendGrid Response Code: " + response.getStatusCode());
+            System.out.println("SendGrid Response Body: " + response.getBody());
+            System.out.println("SendGrid Response Headers: " + response.getHeaders());
+
             return response.getStatusCode() == 202;
         } catch (IOException ex) {
+            // Log para depurar errores de conexión
+            System.err.println("Error al enviar email con SendGrid: " + ex.getMessage());
+            ex.printStackTrace();
             return false;
         }
     }
