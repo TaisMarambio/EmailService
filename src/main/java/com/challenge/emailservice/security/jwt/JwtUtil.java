@@ -2,18 +2,27 @@ package com.challenge.emailservice.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public class JwtUtil { //va a tener metodos necesarios para generar, validar y extraer informacion del token
+public class JwtUtil {
 
-    private final String secretKey = "secret"; //clave secreta para firmar el token
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes()); //generar la clave secreta
+    }
 
     public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);
@@ -29,28 +38,35 @@ public class JwtUtil { //va a tener metodos necesarios para generar, validar y e
     }
 
     public Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody(); //firmar el token con la clave secreta
+        return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date()); //expiracion antes de la fecha que esta ahí
+        return extractExpiration(token).before(new Date());
     }
 
     public String generateToken(String username, String role){
         Map<String,Object> claims = new HashMap<>();
         claims.put("role", role);
-        return createToken(claims, username); //el claim tiene el rol, el username y la fecha de expiracion
-
+        return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())) //fecha de creacion
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) //fecha de expiracion
-                .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, secretKey).compact(); //signature con el algoritmo y la clave secreta
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora de expiración
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails){
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        try {
+            final String username = extractUsername(token);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
