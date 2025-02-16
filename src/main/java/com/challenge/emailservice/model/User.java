@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import java.time.LocalDate;
 
 @NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email =:email")
 @NamedQuery(name = "User.findByUsername", query = "SELECT u FROM User u WHERE u.username =:username")
@@ -31,12 +30,6 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "status", nullable = false)
-    private boolean status;
-
-    @Column(name = "email_count", nullable = false)
-    private int emailCount = 0;  //contador para emails enviados en el día
-
-    @Column(name = "last_email_sent_date")
-    private LocalDate lastEmailSentDate;  //Fecha del ultimo mail enviado
-}
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private EmailUsage emailUsage;
+    }

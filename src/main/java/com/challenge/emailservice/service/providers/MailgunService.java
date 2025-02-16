@@ -1,6 +1,5 @@
 package com.challenge.emailservice.service.providers;
 
-
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -11,20 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class MailgunService implements EmailServiceProvider {
 
-    @Value("${mailgun.api.key}")
+    @Value("${mailgun.api.key:default_key}")
     private String mailgunApiKey;
 
-    @Value("${mailgun.api.url}")
+    @Value("${mailgun.api.url:default_url}")
     private String mailgunApiUrl;
 
-    @Value("${mailgun.sender.email}")
-    private String senderEmail;
-
-
     @Override
-    public boolean sendEmail(String to, String subject, String body) {
-        System.out.println("Mailgun API Key: " + mailgunApiKey);
-        System.out.println("Mailgun Sender Email: " + senderEmail);
+    public boolean sendEmail(String senderEmail, String to, String subject, String body) {
         try {
             HttpResponse<JsonNode> request = Unirest.post(mailgunApiUrl)
                     .basicAuth("api", mailgunApiKey)

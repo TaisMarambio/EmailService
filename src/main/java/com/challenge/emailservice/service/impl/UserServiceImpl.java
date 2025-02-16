@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,10 +34,10 @@ public class UserServiceImpl implements UserService {
             }
 
             // Verificar si el usuario ya existe por email o username
-            User existingUserByEmail = userRepository.findByEmail(requestMap.get("email"));
-            User existingUserByUsername = userRepository.findByUsername(requestMap.get("username"));
+            Optional<User> existingUserByEmail = userRepository.findByEmail(requestMap.get("email"));
+            Optional<User> existingUserByUsername = userRepository.findByUsername(requestMap.get("username"));
 
-            if (existingUserByEmail != null || existingUserByUsername != null) {
+            if (existingUserByEmail.isPresent() || existingUserByUsername.isPresent()) {
                 return ResponseEntity.badRequest().body("User with the same email or username already exists");
             }
 
@@ -62,7 +63,6 @@ public class UserServiceImpl implements UserService {
         user.setUsername(requestMap.get("username"));
         user.setEmail(requestMap.get("email"));
         user.setPassword(passwordEncoder.encode(requestMap.get("password"))); // Encriptar contraseña
-        user.setStatus(true);
         user.setRole("USER");
         return user;
     }

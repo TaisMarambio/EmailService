@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -27,20 +28,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         log.info("Buscando usuario con username: {}", username);
 
         //search usuario por username
-        User userDetail = userRepository.findByUsername(username);
+        Optional<User> userDetail = userRepository.findByUsername(username);
 
-        if (userDetail == null) {
+        if (userDetail.isEmpty()) {
             throw new UsernameNotFoundException("Usuario no encontrado con username: " + username);
         }
 
         // convertimos rol del usuario en GrantedAuthority
         List<SimpleGrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + userDetail.getRole()) // prefijo "ROLE_"
+                new SimpleGrantedAuthority("ROLE_" + userDetail.get().getRole()) // prefijo "ROLE_"
         );
 
         return new org.springframework.security.core.userdetails.User(
-                userDetail.getUsername(),
-                userDetail.getPassword(),
+                userDetail.get().getUsername(),
+                userDetail.get().getPassword(),
                 authorities
         );
     }

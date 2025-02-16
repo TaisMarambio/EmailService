@@ -1,5 +1,6 @@
 package com.challenge.emailservice.service.providers;
 
+import com.challenge.emailservice.model.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import org.springframework.test.context.TestPropertySource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = MailgunService.class)
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 class MailgunServiceIntegrationTest {
 
     @Autowired
@@ -24,11 +25,12 @@ class MailgunServiceIntegrationTest {
 
     @Test
     void testSendEmail() {
+        String from = "taismarambio@hotmail.com";
         String to = "taismmc@gmail.com";
         String subject = "Prueba de integración con Mailgun";
         String body = "Este es un email de prueba enviado desde MailgunService.";
 
-        boolean result = mailgunService.sendEmail(to, subject, body);
+        boolean result = mailgunService.sendEmail(from, to, subject, body);
 
         //verifico que mailgun lo aceptó (Retorna true si el status fue 202)
         assertTrue(result, "El email debería enviarse correctamente a través de Mailgun.");

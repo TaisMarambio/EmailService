@@ -1,5 +1,6 @@
 package com.challenge.emailservice.service;
 
+import com.challenge.emailservice.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 

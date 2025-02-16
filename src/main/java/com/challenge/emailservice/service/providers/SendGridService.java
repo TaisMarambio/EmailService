@@ -11,16 +11,11 @@ import java.io.IOException;
 @Service
 public class SendGridService implements EmailServiceProvider {
 
-    @Value("${sendgrid.api.key}")
+    @Value("${sendgrid.api.key:default_key}")
     private String sendGridApiKey;
 
-    @Value("${sendgrid.sender.email}")
-    private String senderEmail;
-
     @Override
-    public boolean sendEmail(String to, String subject, String body) {
-        System.out.println("SendGrid API Key: " + sendGridApiKey);
-        System.out.println("SendGrid Sender Email: " + senderEmail);
+    public boolean sendEmail(String senderEmail, String to, String subject, String body) {
 
         Email from = new Email(senderEmail);
         Email toEmail = new Email(to);

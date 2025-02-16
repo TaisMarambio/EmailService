@@ -10,7 +10,7 @@ import org.springframework.test.context.TestPropertySource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SendGridService.class)
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 class SendGridServiceIntegrationTest {
 
     @Autowired
@@ -24,11 +24,12 @@ class SendGridServiceIntegrationTest {
 
     @Test
     void testSendEmail() {
+        String from = "taismarambio@hotmail.com";
         String to = "taismmc@gmail.com";
         String subject = "Prueba de integración con SendGrid";
         String body = "Este es un email de prueba enviado desde SendGridService.";
 
-        boolean result = sendGridService.sendEmail(to, subject, body);
+        boolean result = sendGridService.sendEmail(from, to, subject, body);
 
         //verifico que SendGrid lo aceptó (Retorna true si el status fue 202)
         assertTrue(result, "El email debería enviarse correctamente a través de SendGrid.");
