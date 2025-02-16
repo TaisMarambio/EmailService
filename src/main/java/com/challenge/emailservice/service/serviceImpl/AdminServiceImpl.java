@@ -63,7 +63,6 @@ public class AdminServiceImpl implements AdminService {
         Role roleEntity = roleRepository.findByName(newRole)
                 .orElseThrow(() -> new RuntimeException("Role not found: " + finalNewRole));
 
-        // ✅ Hacer mutable la colección de roles
         Set<Role> updatedRoles = new HashSet<>(user.getRoles());
         updatedRoles.clear();
         updatedRoles.add(roleEntity);

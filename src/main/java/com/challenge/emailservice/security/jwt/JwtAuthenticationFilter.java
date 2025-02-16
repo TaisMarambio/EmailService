@@ -30,27 +30,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-
-        // Obtener el header de autorización
         final String authHeader = request.getHeader("Authorization");
 
-        // Validar si el header tiene contenido y empieza con "Bearer "
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extraer el token quitando "Bearer "
         final String jwt = authHeader.substring(7);
 
-        // Extraer el username del token
-        final String userEmail = jwtService.extractUserName(jwt);
+        final String userEmail = jwtService.extractUserName(jwt); // extract username from token
 
-        // Validar que el usuario existe y no hay autenticación previa
+        // verify user exists and no previous authentication
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userService.userDetailsService().loadUserByUsername(userEmail);
 
-            // Verificar si el token es válido
+            //verify if token is valid
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 SecurityContext context = SecurityContextHolder.createEmptyContext();
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -60,8 +55,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.setContext(context);
             }
         }
-
-        // Continuar con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 }

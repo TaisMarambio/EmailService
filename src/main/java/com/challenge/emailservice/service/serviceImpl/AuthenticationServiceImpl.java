@@ -29,52 +29,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public JwtAuthenticationResponse register(RegisterRequest request) {
-        // 🔹 Validamos datos de entrada
         validateRegisterRequest(request);
 
-        // 🔹 Buscar `ROLE_USER` en la base de datos o crearlo si no existe
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> {
-                    log.warn("⚠️ ROLE_USER not found. Creating it automatically.");
+                    log.warn("ROLE_USER not found. Creating it automatically.");
                     return roleRepository.save(new Role(null, "ROLE_USER", null));
                 });
 
-        // 🔹 Crear y guardar el usuario
+        //create and save user
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // ✅ Asegurar codificación
-                .roles(Set.of(userRole)) // ✅ Asignamos `ROLE_USER`
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(Set.of(userRole))
                 .build();
 
         userRepository.save(user);
-        log.info("✅ New user registered: {}", user.getUsername());
+        log.info("New user registered: {}", user.getUsername());
 
-        // 🔹 Generar JWT y devolver la respuesta
+        //generate JWT and return response
         return createJwtResponse(user);
     }
 
     @Override
     public JwtAuthenticationResponse login(LoginRequest request) {
-        // 🔹 Buscar usuario en la base de datos
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password."));
 
-        // 🔹 Validar la contraseña encriptada
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            log.warn("❌ Failed login attempt for user: {}", user.getUsername());
+            log.warn("Failed login attempt for user: {}", user.getUsername());
             throw new BadCredentialsException("Invalid username or password.");
         }
 
-        log.info("✅ User logged in: {}", user.getUsername());
+        log.info("User logged in: {}", user.getUsername());
 
-        // 🔹 Generar JWT y devolver la respuesta
-        return createJwtResponse(user);
+        return createJwtResponse(user);  //generate JWT and return response
     }
 
-    /**
-     * Valida los datos de registro y lanza excepciones si hay errores.
-     */
     private void validateRegisterRequest(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists.");
@@ -84,9 +76,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    /**
-     * Genera un JWT y construye la respuesta para el usuario autenticado.
-     */
     private JwtAuthenticationResponse createJwtResponse(User user) {
         var jwt = jwtService.generateToken(user);
         return JwtAuthenticationResponse.builder()

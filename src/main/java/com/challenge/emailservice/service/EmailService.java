@@ -30,36 +30,30 @@ public class EmailService {
     }
 
     public ResponseEntity<String> sendEmail(String to, String subject, String body) {
-        // 🔹 Obtener el usuario autenticado
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName(); //obtain authenticated user
 
-        // 🔹 Buscar usuario en la base de datos
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Authenticated user not found in the database"));
 
         EmailUsage emailUsage = emailUsageRepository.findByUserAndDate(user, LocalDate.now())
                 .orElseGet(() -> createNewEmailUsage(user));
 
-        // ✅ Verificar si el usuario puede enviar más correos
-        if (!canSendMoreEmails(emailUsage, user)) {
+        if (!canSendMoreEmails(emailUsage, user)) { //verify that user can send emails
             return ResponseEntity.status(429).body("User has exceeded the limit of emails per day");
         }
 
-        // ✅ Intentar enviar con los proveedores
         for (EmailServiceProvider provider : providers) {
             try {
-                if (provider.sendEmail(user.getEmail(), to, subject, body)) { // 🔹 Ahora usamos `user.getEmail()`
+                if (provider.sendEmail(user.getEmail(), to, subject, body)) {
                     updateEmailQuota(emailUsage);
                     return ResponseEntity.ok("Email sent successfully using " + provider.getClass().getSimpleName());
                 }
             } catch (Exception e) {
-                System.err.println("❌ Error with provider: " + provider.getClass().getSimpleName() + ": " + e.getMessage());
+                System.err.println("Error with provider: " + provider.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
-
         return ResponseEntity.status(500).body("Failed to send email with all providers");
     }
-
 
     private boolean canSendMoreEmails(EmailUsage emailUsage, User user) {
         LocalDate today = LocalDate.now();
@@ -68,9 +62,7 @@ public class EmailService {
             return true;
         }
 
-
-        // ✅ Resetear el count si cambió la fecha
-        if (!today.equals(emailUsage.getDate())) {
+        if (!today.equals(emailUsage.getDate())) { //reset email count if it's a new day
             emailUsage.setEmailCount(0);
             emailUsage.setDate(today);
             emailUsageRepository.save(emailUsage);

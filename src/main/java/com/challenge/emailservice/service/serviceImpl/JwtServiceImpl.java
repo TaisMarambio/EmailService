@@ -31,7 +31,7 @@ public class JwtServiceImpl implements JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList())); // Guardar roles en el JWT
+                .collect(Collectors.toList())); // save role in token
         return generateToken(claims, userDetails);
     }
 
@@ -51,7 +51,7 @@ public class JwtServiceImpl implements JwtService {
             final String userName = extractUserName(token);
             return (userName.equals(userDetails.getUsername())) && !isTokenExpired(token);
         } catch (Exception e) {
-            return false; // Si hay error, el token no es válido
+            return false; //if error, token is invalid
         }
     }
 

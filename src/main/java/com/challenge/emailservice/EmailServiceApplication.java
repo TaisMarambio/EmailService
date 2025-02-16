@@ -9,7 +9,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class EmailServiceApplication {
 
 	static {
-		Dotenv dotenv = Dotenv.load(); //cargo el archivo .env
+		Dotenv dotenv = Dotenv.load(); //load the .env file
 		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 	}
 

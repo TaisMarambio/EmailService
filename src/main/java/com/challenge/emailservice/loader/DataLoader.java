@@ -6,6 +6,7 @@ import com.challenge.emailservice.repository.RoleRepository;
 import com.challenge.emailservice.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,8 @@ public class DataLoader {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    @Value("${admin.password}")
+    private String adminPassword;
 
     @PostConstruct
     public void initData() {
@@ -52,7 +55,7 @@ public class DataLoader {
             User adminUser = User.builder()
                     .username(adminUsername)
                     .email(adminEmail)
-                    .password(passwordEncoder.encode("admin123")) //encrypted password
+                    .password(passwordEncoder.encode(adminPassword)) //encrypted password
                     .roles(Set.of(adminRole))
                     .build();
 

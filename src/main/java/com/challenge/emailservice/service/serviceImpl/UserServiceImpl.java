@@ -1,6 +1,5 @@
 package com.challenge.emailservice.service.serviceImpl;
 
-import com.challenge.emailservice.model.User;
 import com.challenge.emailservice.repository.UserRepository;
 import com.challenge.emailservice.service.UserService;
 import org.springframework.security.core.userdetails.UserDetailsService;

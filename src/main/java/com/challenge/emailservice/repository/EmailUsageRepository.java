@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface EmailUsageRepository extends JpaRepository<EmailUsage, Integer> {
-    Optional<EmailUsage> findByUser(User user);
 Optional<EmailUsage> findByUserAndDate(User user, LocalDate date);
     List<EmailUsage> findByDateAndEmailCountGreaterThan(LocalDate date, int emailCount);
 }

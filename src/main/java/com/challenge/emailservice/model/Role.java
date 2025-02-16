@@ -10,8 +10,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "users") // 🔹 Evita problemas de recursión infinita
-@EqualsAndHashCode(exclude = "users") // 🔹 Evita errores en comparación de objetos
+@ToString(exclude = "users")
+@EqualsAndHashCode(exclude = "users")
 @Table(name = "roles")
 public class Role {
     @Id
@@ -21,6 +21,6 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY) // 🔹 Usa Lazy Loading para optimizar consultas
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private Set<User> users;
 }

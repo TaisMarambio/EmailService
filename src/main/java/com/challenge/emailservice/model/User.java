@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "roles") // ✅ Evita recursión infinita en `toString()`
-@EqualsAndHashCode(exclude = "roles") // ✅ Evita problemas en comparación de objetos
+@ToString(exclude = "roles")
+@EqualsAndHashCode(exclude = "roles")
 @DynamicUpdate
 @DynamicInsert
 @Table(name = "users")
@@ -44,7 +44,7 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "user_roles", // Tabla intermedia
+            name = "user_roles", //tabla intermedia
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
@@ -53,7 +53,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> (GrantedAuthority) role::getName) // ✅ Usa expresión lambda más clara
+                .map(role -> (GrantedAuthority) role::getName)
                 .collect(Collectors.toSet());
     }
 
