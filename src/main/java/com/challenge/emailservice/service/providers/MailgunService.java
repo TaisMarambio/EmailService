@@ -26,10 +26,11 @@ public class MailgunService implements EmailServiceProvider {
                     .queryString("subject", subject)
                     .queryString("text", body)
                     .asJson();
-            System.out.println("Mailgun Response Body: " + request.getBody());
+
+            System.out.println("✅ Mailgun Response: " + request.getStatus() + " - " + request.getBody());
             return request.getStatus() == 200 || request.getStatus() == 202;
         } catch (UnirestException e) {
-            e.printStackTrace();
+            System.err.println("❌ Mailgun Error: " + e.getMessage());
             return false;
         }
     }

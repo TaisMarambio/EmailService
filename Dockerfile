@@ -16,8 +16,10 @@ RUN ./gradlew build -x test
 # Copiamos el JAR generado
 COPY build/libs/*.jar app.jar
 
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
 # Exponemos el puerto (asegúrate de que coincida con el de tu aplicación)
-EXPOSE 8080
+EXPOSE 8080 5005
 
 # Comando para ejecutar el servicio
 ENTRYPOINT ["java", "-jar", "app.jar"]

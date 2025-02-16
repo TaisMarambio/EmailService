@@ -6,12 +6,14 @@ import com.challenge.emailservice.repository.EmailUsageRepository;
 import com.challenge.emailservice.repository.UserRepository;
 import com.challenge.emailservice.service.providers.EmailServiceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.challenge.emailservice.model.Role;
 
-import javax.naming.LimitExceededException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailService {
@@ -27,41 +29,54 @@ public class EmailService {
         this.emailUsageRepository = emailUsageRepository;
     }
 
-    public boolean sendEmail(String userEmail, String to, String subject, String body) throws Exception {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new Exception("User not found"));
+    public ResponseEntity<String> sendEmail(String to, String subject, String body) {
+        // 🔹 Obtener el usuario autenticado
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        EmailUsage emailUsage = emailUsageRepository.findByUser(user)
+        // 🔹 Buscar usuario en la base de datos
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found in the database"));
+
+        EmailUsage emailUsage = emailUsageRepository.findByUserAndDate(user, LocalDate.now())
                 .orElseGet(() -> createNewEmailUsage(user));
 
-        // Check if user can send emails
-        if (!canSendMoreEmails(emailUsage)) {
-            throw new LimitExceededException("User has exceeded the limit of emails per day");
+        // ✅ Verificar si el usuario puede enviar más correos
+        if (!canSendMoreEmails(emailUsage, user)) {
+            return ResponseEntity.status(429).body("User has exceeded the limit of emails per day");
         }
 
+        // ✅ Intentar enviar con los proveedores
         for (EmailServiceProvider provider : providers) {
             try {
-                if (provider.sendEmail(userEmail, to, subject, body)) {
+                if (provider.sendEmail(user.getEmail(), to, subject, body)) { // 🔹 Ahora usamos `user.getEmail()`
                     updateEmailQuota(emailUsage);
-                    return true;
+                    return ResponseEntity.ok("Email sent successfully using " + provider.getClass().getSimpleName());
                 }
             } catch (Exception e) {
-                System.err.println("Error with provider: " + provider.getClass().getSimpleName() + ": " + e.getMessage());
+                System.err.println("❌ Error with provider: " + provider.getClass().getSimpleName() + ": " + e.getMessage());
             }
         }
-        return false;
+
+        return ResponseEntity.status(500).body("Failed to send email with all providers");
     }
 
-    private boolean canSendMoreEmails(EmailUsage emailUsage) {
+
+    private boolean canSendMoreEmails(EmailUsage emailUsage, User user) {
         LocalDate today = LocalDate.now();
 
+        if (user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()).contains("ROLE_ADMIN")) {
+            return true;
+        }
+
+
+        // ✅ Resetear el count si cambió la fecha
         if (!today.equals(emailUsage.getDate())) {
             emailUsage.setEmailCount(0);
             emailUsage.setDate(today);
             emailUsageRepository.save(emailUsage);
         }
 
-        return emailUsage.getEmailCount() < 1000;
+        return emailUsage.getEmailCount() <= 1000;
     }
 
     private void updateEmailQuota(EmailUsage emailUsage) {
