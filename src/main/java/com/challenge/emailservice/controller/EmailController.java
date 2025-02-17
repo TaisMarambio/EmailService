@@ -1,6 +1,6 @@
 package com.challenge.emailservice.controller;
 
-import com.challenge.emailservice.service.EmailService;
+import com.challenge.emailservice.service.email.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

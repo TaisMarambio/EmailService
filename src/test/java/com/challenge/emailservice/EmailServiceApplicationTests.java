@@ -10,6 +10,5 @@ class EmailServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// Solo verifica que el contexto arranca correctamente
 	}
 }
