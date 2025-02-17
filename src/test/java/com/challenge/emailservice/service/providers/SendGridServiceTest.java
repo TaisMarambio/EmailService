@@ -1,6 +1,5 @@
 package com.challenge.emailservice.service.providers;
 
-import com.challenge.emailservice.model.User;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,12 +9,12 @@ import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = MailgunService.class)
+@SpringBootTest(classes = SendGridService.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
-class MailgunServiceIntegrationTest {
+class SendGridServiceTest {
 
     @Autowired
-    private MailgunService mailgunService;
+    private SendGridService sendGridService;
 
     @BeforeAll
     static void loadEnv() {
@@ -27,12 +26,12 @@ class MailgunServiceIntegrationTest {
     void testSendEmail() {
         String from = "taismarambio@hotmail.com";
         String to = "taismmc@gmail.com";
-        String subject = "Prueba de integración con Mailgun";
-        String body = "Este es un email de prueba enviado desde MailgunService.";
+        String subject = "Prueba de integración con SendGrid";
+        String body = "Este es un email de prueba enviado desde SendGridService.";
 
-        boolean result = mailgunService.sendEmail(from, to, subject, body);
+        boolean result = sendGridService.sendEmail(from, to, subject, body);
 
-        //verifico que mailgun lo aceptó (Retorna true si el status fue 202)
-        assertTrue(result, "El email debería enviarse correctamente a través de Mailgun.");
+        //verifico que SendGrid lo aceptó (Retorna true si el status fue 202)
+        assertTrue(result, "El email debería enviarse correctamente a través de SendGrid.");
     }
 }
