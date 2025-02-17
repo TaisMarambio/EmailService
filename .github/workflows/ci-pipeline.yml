@@ -2,7 +2,7 @@ name: CI Pipeline - Test Checking
 
 on:
   push:
-    branches: master
+    branches: [master]
   pull_request:
 
 jobs:
@@ -43,7 +43,7 @@ jobs:
         run: export $(cat .env | xargs)
 
       - name: Build the Application
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon --quiet
 
       - name: Run Tests
         run: ./gradlew test
