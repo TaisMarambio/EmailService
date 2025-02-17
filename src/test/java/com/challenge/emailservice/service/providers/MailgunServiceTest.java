@@ -25,7 +25,7 @@ class MailgunServiceTest {
     @Test
     void testSendEmail() {
         String from = "taismarambio@hotmail.com";
-        String to = "taismmc@gmail.com";
+        String to = "tais.marambio@ing.austral.edu.ar";
         String subject = "Prueba de integración con Mailgun";
         String body = "Este es un email de prueba enviado desde MailgunService.";
 
