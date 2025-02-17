@@ -8,10 +8,16 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    environment: env
+    env:
+        MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+        MAILGUN_API_URL: ${{ secrets.MAILGUN_API_URL }}
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        DOTENV_PATH: "./.env"
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v3
@@ -19,17 +25,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Grant execute permissions to Gradle Wrapper
+        run: chmod +x gradlew
+
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle
 
       - name: Build the Application
         run: ./gradlew build
 
       - name: Run Tests
         run: ./gradlew test
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: build/reports/tests/test/
