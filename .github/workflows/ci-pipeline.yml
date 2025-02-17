@@ -9,11 +9,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     environment: env
-    env:
-        MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
-        MAILGUN_API_URL: ${{ secrets.MAILGUN_API_URL }}
-        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-        DOTENV_PATH: "./.env"
 
     steps:
       - name: Checkout Code
@@ -25,14 +20,20 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Grant execute permissions to Gradle Wrapper
-        run: chmod +x gradlew
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle
+
+      - name: Grant execute permissions to Gradle Wrapper
+        run: chmod +x gradlew
 
       - name: Build the Application
         run: ./gradlew build
 
       - name: Run Tests
         run: ./gradlew test
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+            name: test-results
+            path: build/reports/tests/test/
