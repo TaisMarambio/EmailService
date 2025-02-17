@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -20,19 +19,43 @@ jobs:
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Grant execute permissions to Gradle Wrapper
         run: chmod +x gradlew
 
+      - name: Set Environment Variables
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> $GITHUB_ENV
+          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> $GITHUB_ENV
+          echo "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" >> $GITHUB_ENV
+          echo "MAILGUN_API_URL=${{ secrets.MAILGUN_API_URL }}" >> $GITHUB_ENV
+          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Start Database
+        run: |
+          docker run --name postgres -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p 5432:5432 -d postgres:latest
+          sleep 10 # Esperar a que la base de datos inicie
+
+      - name: Verify Database Connection
+        run: |
+          docker ps -a
+          docker logs postgres
+
       - name: Build the Application
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace --info
 
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew test --stacktrace --info
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-            name: test-results
-            path: build/reports/tests/test/
+          name: test-results
+          path: build/reports/tests/test/
