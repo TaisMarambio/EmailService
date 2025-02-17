@@ -2,12 +2,13 @@ name: CI Pipeline - Test Checking
 
 on:
   push:
-    branches: master
+    branches: [master]
   pull_request:
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -19,40 +20,33 @@ jobs:
           java-version: '21'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle
 
       - name: Grant execute permissions to Gradle Wrapper
         run: chmod +x gradlew
 
-      - name: Set Environment Variables
+      - name: Create .env file
         run: |
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> $GITHUB_ENV
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> $GITHUB_ENV
-          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> $GITHUB_ENV
-          echo "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" >> $GITHUB_ENV
-          echo "MAILGUN_API_URL=${{ secrets.MAILGUN_API_URL }}" >> $GITHUB_ENV
-          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> $GITHUB_ENV
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> $GITHUB_ENV
-          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> $GITHUB_ENV
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
+          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
+          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
+          echo "MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }}" >> .env
+          echo "MAILGUN_API_URL=${{ secrets.MAILGUN_API_URL }}" >> .env
+          echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
 
-      - name: Start Database
-        run: |
-          docker run --name postgres -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p 5432:5432 -d postgres:latest
-          sleep 10 # Esperar a que la base de datos inicie
-
-      - name: Verify Database Connection
-        run: |
-          docker ps -a
-          docker logs postgres
+      - name: Export Environment Variables
+        run: export $(cat .env | xargs)
 
       - name: Build the Application
-        run: ./gradlew build --stacktrace --info
+        run: ./gradlew build --no-daemon --quiet
 
       - name: Run Tests
-        run: ./gradlew test --info
+        run: ./gradlew test
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
