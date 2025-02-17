@@ -24,8 +24,8 @@ class SendGridServiceTest {
 
     @Test
     void testSendEmail() {
-        String from = "taismarambio@hotmail.com";
-        String to = "taismmc@gmail.com";
+        String from = "taismmc@gmail.com";
+        String to = "taismarambio@hotmail.com";
         String subject = "Prueba de integración con SendGrid";
         String body = "Este es un email de prueba enviado desde SendGridService.";
 
