@@ -4,11 +4,13 @@ import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @Service
+@Slf4j
 public class SendGridService implements EmailServiceProvider {
 
     @Value("${sendgrid.api.key:default_key}")
@@ -31,16 +33,15 @@ public class SendGridService implements EmailServiceProvider {
 
             Response response = sg.api(request);
 
-            // Log para depurar la respuesta de SendGrid
-            System.out.println("SendGrid Response Code: " + response.getStatusCode());
-            System.out.println("SendGrid Response Body: " + response.getBody());
-            System.out.println("SendGrid Response Headers: " + response.getHeaders());
+            //logs
+            log.info("📧 SendGrid Response Code: {}", response.getStatusCode());
+            log.info("📧 SendGrid Response Body: {}", response.getBody());
+            log.info("📧 SendGrid Response Headers: {}", response.getHeaders());
 
             return response.getStatusCode() == 202;
         } catch (IOException ex) {
-            // Log para depurar errores de conexión
-            System.err.println("Error al enviar email con SendGrid: " + ex.getMessage());
-            ex.printStackTrace();
+            //connection error logs
+            log.error("Error when sending email with SendGrid: {}", ex.getMessage(), ex);
             return false;
         }
     }

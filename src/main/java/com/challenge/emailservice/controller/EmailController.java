@@ -4,6 +4,8 @@ import com.challenge.emailservice.service.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/email")
 public class EmailController {
@@ -15,15 +17,12 @@ public class EmailController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<String> sendEmail(@RequestParam String from,
-                                            @RequestParam String to,
-                                            @RequestParam String subject,
-                                            @RequestParam String body) throws Exception {
-        boolean success = emailService.sendEmail(from, to, subject, body);
-        if (success) {
-            return ResponseEntity.ok("Email sent successfully!");
-        } else {
-            return ResponseEntity.status(500).body("Failed to send email.");
-        }
+    public ResponseEntity<String> sendEmail(@RequestBody Map<String, String> requestMap) {
+        return emailService.sendEmail(
+                requestMap.get("to"),
+                requestMap.get("subject"),
+                requestMap.get("body")
+        );
     }
+
 }

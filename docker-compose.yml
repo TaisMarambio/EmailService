@@ -6,10 +6,6 @@ services:
     container_name: emailservice_db
     env_file:
       - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -20,14 +16,11 @@ services:
     container_name: emailservice_app
     depends_on:
       - db
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     env_file:
       - .env
     ports:
-      - "8080:8081"
+      - "8080:8080"
+      - "5005:5005"
 
 volumes:
   pgdata:
