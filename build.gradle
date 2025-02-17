@@ -45,5 +45,11 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		if (System.getenv("CI") != null) {
+			excludeTags "ci-ignore"
+		}
+	}
 }
+
+

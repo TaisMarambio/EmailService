@@ -2,6 +2,7 @@ package com.challenge.emailservice.service.providers;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import org.springframework.test.context.TestPropertySource;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = SendGridService.class)
+@Tag("ci-ignore")
 @TestPropertySource(locations = "classpath:application-test.properties")
 class SendGridServiceTest {
 
