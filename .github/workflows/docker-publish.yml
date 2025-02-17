@@ -14,12 +14,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -36,3 +30,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/emailservice:latest
+          platforms: linux/amd64,linux/arm64
+
+      - name: Verify Image on Docker Hub
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/emailservice:latest
